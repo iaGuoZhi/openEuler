@@ -337,12 +337,14 @@ static struct cftype misc_cg_files[] = {
 		.name = "max",
 		.write = misc_cg_max_write,
 		.seq_show = misc_cg_max_show,
-		.flags = CFTYPE_NOT_ON_ROOT,
+		//.flags = CFTYPE_NOT_ON_ROOT,
+		.flags = CFTYPE_ONLY_ON_ROOT,
 	},
 	{
 		.name = "current",
 		.seq_show = misc_cg_current_show,
-		.flags = CFTYPE_NOT_ON_ROOT,
+		.flags = CFTYPE_ONLY_ON_ROOT,
+		//.flags = CFTYPE_NOT_ON_ROOT,
 	},
 	{
 		.name = "capacity",
