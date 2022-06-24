@@ -3767,6 +3767,9 @@ static ssize_t cgroup_freeze_write(struct kernfs_open_file *of,
 	return nbytes;
 }
 
+/**
+ * TBR
+ */
 static int cgroup_file_open(struct kernfs_open_file *of)
 {
 	struct cftype *cft = of_cft(of);
@@ -4071,6 +4074,9 @@ static void cgroup_exit_cftypes(struct cftype *cfts)
 	}
 }
 
+/**
+ * TBR
+ */
 static int cgroup_init_cftypes(struct cgroup_subsys *ss, struct cftype *cfts)
 {
 	struct cftype *cft;
@@ -4744,6 +4750,9 @@ static void *cgroup_procs_next(struct seq_file *s, void *v, loff_t *pos)
 	return css_task_iter_next(&ctx->procs.iter);
 }
 
+/**
+ * TBR
+ */
 static void *__cgroup_procs_start(struct seq_file *s, loff_t *pos,
 				  unsigned int iter_flags)
 {
@@ -5781,6 +5790,9 @@ int __init cgroup_init_early(void)
 	return 0;
 }
 
+/**
+ * TBR
+ */
 /**
  * cgroup_init - cgroup initialization
  *
