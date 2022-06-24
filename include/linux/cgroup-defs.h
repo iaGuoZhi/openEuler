@@ -589,6 +589,8 @@ struct cftype {
 	struct list_head node;		/* anchored at ss->cfts */
 	struct kernfs_ops *kf_ops;
 
+	struct misc_cg *misc_cg; /* For misc cgroup accounting */
+
 	int (*open)(struct kernfs_open_file *of);
 	void (*release)(struct kernfs_open_file *of);
 
