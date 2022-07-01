@@ -3776,16 +3776,6 @@ static int cgroup_file_open(struct kernfs_open_file *of)
 	struct cftype *cft = of_cft(of);
 	struct cgroup_file_ctx *ctx;
 	int ret;
-	enum misc_res_type type;
-
-	pr_info("cgroup open file");
-	type = MISC_CG_RES_OPEN_FILE;
-	cft->misc_cg = get_current_misc_cg();
-
-	ret = misc_cg_try_charge(type, cft->misc_cg, 1);
-	if (ret) {
-		put_misc_cg(cft->misc_cg);
-	}
 
 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
 	if (!ctx)
@@ -3811,14 +3801,10 @@ static void cgroup_file_release(struct kernfs_open_file *of)
 	struct cftype *cft = of_cft(of);
 	struct cgroup_file_ctx *ctx = of->priv;
 
-	pr_info("cgroup release file");
 	if (cft->release)
 		cft->release(of);
 	put_cgroup_ns(ctx->ns);
 	kfree(ctx);
-
-	//misc_cg_uncharge(MISC_CG_RES_OPEN_FILE, cft->misc_cg, 1);
-	//put_misc_cg(cft->misc_cg);
 }
 
 static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
@@ -4095,7 +4081,6 @@ static void cgroup_exit_cftypes(struct cftype *cfts)
 static int cgroup_init_cftypes(struct cgroup_subsys *ss, struct cftype *cfts)
 {
 	struct cftype *cft;
-	unsigned int max_open_file, min_open_file, cgroup_open_file_count;
 
 	for (cft = cfts; cft->name[0] != '\0'; cft++) {
 		struct kernfs_ops *kf_ops;
@@ -4123,11 +4108,6 @@ static int cgroup_init_cftypes(struct cgroup_subsys *ss, struct cftype *cfts)
 		cft->kf_ops = kf_ops;
 		cft->ss = ss;
 	}
-
-	max_open_file = 1000000;
-	min_open_file = 0;
-	cgroup_open_file_count = max_open_file - min_open_file + 1;
-	misc_cg_set_capacity(MISC_CG_RES_OPEN_FILE, cgroup_open_file_count);
 
 	return 0;
 }
@@ -5811,6 +5791,16 @@ int __init cgroup_init_early(void)
 	return 0;
 }
 
+void misc_setup(void)
+{
+	unsigned int max_open_file, min_open_file, cgroup_open_file_count;
+
+	max_open_file = 100000000;
+	min_open_file = 0;
+	cgroup_open_file_count = max_open_file - min_open_file + 1;
+	misc_cg_set_capacity(MISC_CG_RES_OPEN_FILE, cgroup_open_file_count);
+}
+
 /**
  * TBR
  */
@@ -5919,6 +5909,7 @@ int __init cgroup_init(void)
 #ifdef CONFIG_CPUSETS
 	WARN_ON(register_filesystem(&cpuset_fs_type));
 #endif
+	misc_setup();
 
 	return 0;
 }

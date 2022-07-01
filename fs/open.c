@@ -32,6 +32,7 @@
 #include <linux/ima.h>
 #include <linux/dnotify.h>
 #include <linux/compat.h>
+#include <linux/misc_cgroup.h>
 
 #include "internal.h"
 
@@ -1283,6 +1284,9 @@ int filp_close(struct file *filp, fl_owner_t id)
 		printk(KERN_ERR "VFS: Close: file count is 0\n");
 		return 0;
 	}
+
+	misc_cg_uncharge(MISC_CG_RES_OPEN_FILE, filp->misc_cg, 1);
+	put_misc_cg(filp->misc_cg);
 
 	if (filp->f_op->flush)
 		retval = filp->f_op->flush(filp, id);

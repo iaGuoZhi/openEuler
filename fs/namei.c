@@ -39,6 +39,7 @@
 #include <linux/bitops.h>
 #include <linux/init_task.h>
 #include <linux/uaccess.h>
+#include <linux/misc_cgroup.h>
 
 #include "internal.h"
 #include "mount.h"
@@ -3349,10 +3350,19 @@ static struct file *path_openat(struct nameidata *nd,
 {
 	struct file *file;
 	int error;
+	enum misc_res_type type;
 
 	file = alloc_empty_file(op->open_flag, current_cred());
 	if (IS_ERR(file))
 		return file;
+
+	type = MISC_CG_RES_OPEN_FILE;
+	file->misc_cg = get_current_misc_cg();
+
+	error = misc_cg_try_charge(type, file->misc_cg, 1);
+	if (error) {
+		put_misc_cg(file->misc_cg);
+	}
 
 	if (unlikely(file->f_flags & __O_TMPFILE)) {
 		error = do_tmpfile(nd, flags, op, file);

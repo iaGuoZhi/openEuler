@@ -969,6 +969,8 @@ struct file {
 	errseq_t		f_wb_err;
 	errseq_t		f_sb_err; /* for syncfs */
 
+	struct misc_cg *misc_cg; /* For misc cgroup accounting */
+
 	KABI_RESERVE(1)
 } __randomize_layout
   __attribute__((aligned(4)));	/* lest something weird decides that 2 is OK */
